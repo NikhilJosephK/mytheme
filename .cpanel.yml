@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/disk2/nikhiljo/public_html/wp-content/themes/
+    - /bin/cp -R wp-content/themes/mytheme $DEPLOYPATH
