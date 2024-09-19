@@ -1,3 +1,7 @@
 .custom-post-type-cars {
   color: lightgreen;
 }
+
+.brand {
+  display: none;
+}

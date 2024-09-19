@@ -163,6 +163,7 @@ function register_car_brand_taxonomy() {
         'hierarchical' => true,
         'public' => true,
         'rewrite' => array('slug' => 'brand'), // Base slug for brands
+        'show_in_rest' => true // added so that posts can be accessed through REST api (http://localhost:8888/wp-json/wp/v2/brand)
     );
 
     register_taxonomy('brand', array('cars'), $args);
@@ -222,9 +223,32 @@ function add_acf_to_rest_api() {
 add_action('rest_api_init', 'add_acf_to_rest_api');
 
 
+// function to create the api endpoint to fetch category items using the category name, otherwise it can 
+// only be done using term id of the category
+
+// http://localhost:8888/wp-json/wp/v2/cars?brand_slug=honda
+
+function filter_cars_by_brand_slug( $args, $request ) {
+    if ( isset( $request['brand_slug'] ) ) {
+        $brand_slug = sanitize_text_field( $request['brand_slug'] );
+        $term = get_term_by( 'slug', $brand_slug, 'brand' );
+        
+        if ( $term ) {
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'brand',
+                    'field'    => 'term_id',
+                    'terms'    => $term->term_id,
+                ),
+            );
+        }
+    }
+
+    return $args;
+}
+
+// Hook into the REST API for the 'cars' post type
+add_filter( 'rest_cars_query', 'filter_cars_by_brand_slug', 10, 2 );
+
+
 ?>
-
-
-
-
-
